@@ -20,6 +20,10 @@
     <arg name="robot_ip" value="$(arg robot_ip)"/>
   </include>
 
+  <!-- Load URDF to paramter server (needed in base ns for the rqt trajectory controller plugin to work) -->
+  <include file="$(find abb_irb1200_support)/launch/load_irb1200_7_70.launch"/>
+
+  
   <!-- ============================================================================================================= -->
   <!-- Externally Guided Motion (EGM) related components.                                                            -->
   <!--                                                                                                               -->
@@ -36,11 +40,21 @@
 
   <!-- Put 'ros_control' components in the "egm" namespace (to match the hardware interface) -->
   <group ns="egm">
+
+    <!-- Load URDF to paramter server (needed in egm ns for controller to work) -->
+    <include file="$(find abb_irb1200_support)/launch/load_irb1200_7_70.launch"/>
+
     <!-- Load configurations for 'ros_control' controllers on the parameter server -->
     <rosparam file="$(find abb_robot_bringup_examples)/config/ex2_controllers.yaml" command="load"/>
 
     <!-- Two 'ros_control' controller spawners (stopped for the controller that command motions) -->
     <node pkg="controller_manager" type="spawner" name="started" args="egm_state_controller joint_state_controller"/>
-    <node pkg="controller_manager" type="spawner" name="stopped" args="--stopped joint_group_velocity_controller"/>
+    <node 
+      pkg="controller_manager" 
+      type="spawner" 
+      name="stopped" 
+      args="--stopped 
+            position_controller
+            "/>
   </group>
 </launch>
